@@ -1,4 +1,4 @@
-package com.tkhskt.shiirudo.processor
+package com.tkhskt.shiirudo
 
 import com.squareup.kotlinpoet.ClassName
 

@@ -1,4 +1,4 @@
-package com.tkhskt.shiirudo.processor
+package com.tkhskt.shiirudo
 
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
@@ -8,8 +8,8 @@ import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.google.devtools.ksp.validate
-import com.tkhskt.shiirudo.processor.ClassNames.SHIIRUDO
-import com.tkhskt.shiirudo.processor.generator.ShiirudoBuilderGenerator
+import com.tkhskt.shiirudo.ClassNames.SHIIRUDO
+import com.tkhskt.shiirudo.generator.ShiirudoBuilderGenerator
 
 class ShiirudoProcessor(
     private val codeGenerator: CodeGenerator,
@@ -22,11 +22,11 @@ class ShiirudoProcessor(
         val ret = symbols.filter { !it.validate() }.toList()
         symbols
             .filter { it is KSClassDeclaration && it.validate() }
-            .forEach { it.accept(ShaderParametersVisitor(), Unit) }
+            .forEach { it.accept(ShiirudoVisitor(), Unit) }
         return ret
     }
 
-    inner class ShaderParametersVisitor : KSVisitorVoid() {
+    inner class ShiirudoVisitor : KSVisitorVoid() {
         override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
             val shiirudoBuilderGenerator =
                 ShiirudoBuilderGenerator(codeGenerator, logger)

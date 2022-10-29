@@ -1,4 +1,4 @@
-package com.tkhskt.shiirudo.processor.generator
+package com.tkhskt.shiirudo.generator
 
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies

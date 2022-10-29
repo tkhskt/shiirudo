@@ -15,5 +15,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "shiirudo"
 include(":lib")
-include(":processor")
 include(":annotation")
