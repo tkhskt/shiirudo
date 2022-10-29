@@ -30,18 +30,28 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.event.collectEvent {
+                    isShowDialog {
 
+                    }
+                    isCloseDialog {
+
+                    }
+                    isElse {
+
+                    }
                 }
             }
         }
     }
 
-    fun hoge(event: MainViewModel.Event) {
-        event.handle {
-            isShowDialog {
+    private fun eventHandler(event: MainViewModel.Event) {
+        event.shiirudo()
+            .isShowDialog {
 
             }
-        }
+            .isElse {
+
+            }
     }
 }
 
@@ -49,6 +59,6 @@ suspend fun Flow<MainViewModel.Event>.collectEvent(
     handler: MainViewModelEventShiirudoBuilder.() -> Unit,
 ) {
     collect {
-        it.handle(handler)
+        it.shiirudo(handler)
     }
 }

@@ -1,4 +1,4 @@
-package com.tkhskt.shiirudo.generator
+package com.tkhskt.shiirudo.generator.executor
 
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
@@ -8,13 +8,10 @@ import com.google.devtools.ksp.symbol.KSFile
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.LambdaTypeName
-import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.writeTo
-import com.tkhskt.shiirudo.NameResolver
 
-class ShiirudoDslGenerator(
+class ShiirudoExecutorDslGenerator(
     private val codeGenerator: CodeGenerator,
     private val logger: KSPLogger,
 ) {
@@ -38,52 +35,25 @@ class ShiirudoDslGenerator(
         packageName: String,
         containingFile: KSFile,
     ) {
-        val namePrefix =
-            NameResolver.createPropertyName(
-                rootDeclaration = null,
-                classDeclaration = annotatedClassDeclaration,
-                includeRoot = true
-            )
-        val fileName = "${namePrefix}Extension"
+        val namePrefix = ShiirudoExecutorGenerator.getExecutorClassName(annotatedClassDeclaration)
+        val fileName = "${namePrefix.simpleName}Extension"
         val file = FileSpec
             .builder(packageName, fileName)
-            .addHandleFunction()
+            .addExecuteFunction()
             .build()
         file.writeTo(codeGenerator, Dependencies(false, containingFile))
     }
 
-    private fun FileSpec.Builder.addHandleFunction(): FileSpec.Builder {
-        val builderClassName =
-            ShiirudoBuilderGenerator.getBuilderClassName(annotatedClassDeclaration)
-        val parameterTypeName = LambdaTypeName.get(
-            receiver = builderClassName,
-            returnType = Unit::class.asTypeName(),
-        )
-        val branches = subclasses.map { subclass ->
-            val nameSuffix = NameResolver.createPropertyName(
-                rootDeclaration = annotatedClassDeclaration,
-                classDeclaration = subclass,
-                reverse = true
-            )
-            subclass.toClassName().canonicalName to nameSuffix
-        }.joinToString("\n") {
-            """
-            |  is ${it.first} -> {
-            |    val f = shiirudoClass.is${it.second} ?: shiirudoClass.isElse
-            |    f.invoke(this)
-            |  }
-            """.trimMargin()
-        }
+    private fun FileSpec.Builder.addExecuteFunction(): FileSpec.Builder {
+        val executorClassName =
+            ShiirudoExecutorGenerator.getExecutorClassName(annotatedClassDeclaration)
         addFunction(
-            FunSpec.builder("handle")
+            FunSpec.builder("shiirudo")
+                .returns(executorClassName)
                 .receiver(annotatedClassName)
-                .addParameter("handler", parameterTypeName)
                 .addCode(
                     """
-                    |val shiirudoClass = ${builderClassName.simpleName}().apply(handler).build()
-                    |when(this) {
-                    |$branches
-                    |}
+                    |return ${executorClassName.simpleName}(this)
                     """.trimMargin()
                 )
                 .build()

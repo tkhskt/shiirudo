@@ -1,4 +1,4 @@
-package com.tkhskt.shiirudo.generator
+package com.tkhskt.shiirudo.generator.builder
 
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
@@ -8,6 +8,7 @@ import com.google.devtools.ksp.symbol.KSFile
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.LambdaTypeName
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.PropertySpec
@@ -17,7 +18,7 @@ import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.writeTo
 import com.tkhskt.shiirudo.NameResolver
 
-class ShiirudoGenerator(
+class ShiirudoBuilderGenerator(
     private val codeGenerator: CodeGenerator,
     private val logger: KSPLogger,
 ) {
@@ -31,33 +32,30 @@ class ShiirudoGenerator(
         annotatedClassDeclaration = classDeclaration
         annotatedClassName = classDeclaration.toClassName()
         subclasses = classDeclaration.getSealedSubclasses()
-        generateShiirudo(
+        generateShiirudoBuilder(
             packageName = packageName,
             containingFile = classDeclaration.containingFile!!
         )
     }
 
-    private fun generateShiirudo(
+    private fun generateShiirudoBuilder(
         packageName: String,
         containingFile: KSFile,
     ) {
-        val shiirudoClassNameString = getShiirudoClassName(annotatedClassDeclaration).simpleName
-        val constructorFunSpec = FunSpec.constructorBuilder()
-            .addParameters()
-            .build()
-        val constructorTypeSpec = TypeSpec.classBuilder(shiirudoClassNameString)
-            .primaryConstructor(constructorFunSpec)
+        val builderClassNameString = getBuilderClassName(annotatedClassDeclaration)
+        val typeSpec = TypeSpec.classBuilder(builderClassNameString)
             .addProperties()
+            .addFunctions()
+            .addBuildFunction()
             .build()
         val file = FileSpec
-            .builder(packageName, shiirudoClassNameString)
-            .addType(constructorTypeSpec)
+            .builder(packageName, builderClassNameString.simpleName)
+            .addType(typeSpec)
             .build()
-        file.writeTo(codeGenerator, Dependencies(true, containingFile))
+        file.writeTo(codeGenerator, Dependencies(false, containingFile))
     }
 
     private fun TypeSpec.Builder.addProperties(): TypeSpec.Builder {
-
         subclasses.forEach { subclass ->
             val nameSuffix = NameResolver.createPropertyName(
                 rootDeclaration = annotatedClassDeclaration,
@@ -65,64 +63,79 @@ class ShiirudoGenerator(
                 reverse = true
             )
             val className = subclass.toClassName()
-            val property = createProperty(
+            val property = createBuilderProperty(
                 className = className,
-                name = "is$nameSuffix"
+                name = "is$nameSuffix",
             )
             addProperty(property)
         }
-        val property = createProperty(
+        val property = createBuilderProperty(
             className = annotatedClassName,
             name = "isElse",
             nullable = false,
+            initializer = "{}"
         )
         addProperty(property)
         return this
     }
 
-    private fun FunSpec.Builder.addParameters(): FunSpec.Builder {
+    private fun TypeSpec.Builder.addFunctions(): TypeSpec.Builder {
         subclasses.forEach { subclass ->
             val nameSuffix = NameResolver.createPropertyName(
                 rootDeclaration = annotatedClassDeclaration,
                 classDeclaration = subclass,
                 reverse = true
             )
-            val parameter = createParameter(
-                className = subclass.toClassName(),
+            val className = subclass.toClassName()
+            val func = createBuilderFunction(
+                className = className,
                 name = "is$nameSuffix"
             )
-            addParameter(parameter)
+            addFunction(func)
         }
-        val parameter = createParameter(
+        val func = createBuilderFunction(
             className = annotatedClassName,
             name = "isElse",
-            nullable = false,
         )
-        addParameter(parameter)
+        addFunction(func)
         return this
     }
 
-    private fun createParameter(
-        className: ClassName,
-        name: String,
-        nullable: Boolean = true,
-    ): ParameterSpec {
-        val parameterSpec = ParameterSpec.builder("", className).build()
-        val lambdaTypeSpec = LambdaTypeName.get(
-            receiver = null,
-            parameters = listOf(parameterSpec),
-            returnType = Unit::class.asClassName()
-        ).copy(nullable = nullable)
-        return ParameterSpec.builder(
-            name = name,
-            type = lambdaTypeSpec,
-        ).build()
+    private fun TypeSpec.Builder.addBuildFunction(): TypeSpec.Builder {
+        val constructorStatement = subclasses.map { subclass ->
+            NameResolver.createPropertyName(
+                rootDeclaration = annotatedClassDeclaration,
+                classDeclaration = subclass,
+                reverse = true
+            )
+        }.joinToString(
+            ",\n"
+        ) { subclassName ->
+            "  is$subclassName = this.is$subclassName"
+        }
+        val shiirudoClassNamePrefix =
+            NameResolver.createPropertyName(
+                rootDeclaration = null,
+                classDeclaration = annotatedClassDeclaration,
+                includeRoot = true
+            )
+        val shiirudoClassName = "${shiirudoClassNamePrefix}Shiirudo"
+        val func = FunSpec.builder("build")
+            .returns(ClassName(annotatedClassDeclaration.packageName.asString(), shiirudoClassName))
+            .addKdoc("Do not execute manually")
+            .addStatement(
+                "return ${shiirudoClassName}(\n$constructorStatement,\n  isElse = this.isElse\n)"
+            )
+            .build()
+        addFunction(func)
+        return this
     }
 
-    private fun createProperty(
+    private fun createBuilderProperty(
         className: ClassName,
         name: String,
         nullable: Boolean = true,
+        initializer: String = "null"
     ): PropertySpec {
         val parameterSpec = ParameterSpec.builder("", className).build()
         val lambdaTypeSpec = LambdaTypeName.get(
@@ -133,18 +146,43 @@ class ShiirudoGenerator(
         return PropertySpec.builder(
             name = name,
             type = lambdaTypeSpec,
-        ).initializer(name).build()
+            modifiers = listOf(KModifier.PRIVATE)
+        ).mutable().initializer(initializer).build()
+    }
+
+    private fun createBuilderFunction(
+        className: ClassName,
+        name: String,
+    ): FunSpec {
+        val parameterSpec = ParameterSpec.builder("", className).build()
+        val lambdaTypeSpec = LambdaTypeName.get(
+            receiver = null,
+            parameters = listOf(parameterSpec),
+            returnType = Unit::class.asClassName()
+        )
+        return FunSpec.builder(name)
+            .addParameter(
+                name = "f",
+                lambdaTypeSpec,
+            ).addStatement(
+                "this.$name = f"
+            )
+            .build()
     }
 
     companion object {
-        fun getShiirudoClassName(annotatedKSClassDeclaration: KSClassDeclaration): ClassName {
-            val namePrefix =
+        fun getBuilderClassName(annotatedKSClassDeclaration: KSClassDeclaration): ClassName {
+            val shiirudoClassNamePrefix =
                 NameResolver.createPropertyName(
                     rootDeclaration = null,
                     classDeclaration = annotatedKSClassDeclaration,
                     includeRoot = true
                 )
-            return ClassName(annotatedKSClassDeclaration.packageName.asString(), "${namePrefix}Shiirudo")
+            val shiirudoClassName = "${shiirudoClassNamePrefix}Shiirudo"
+            return ClassName(
+                annotatedKSClassDeclaration.packageName.asString(),
+                "${shiirudoClassName}Builder"
+            )
         }
     }
 }
