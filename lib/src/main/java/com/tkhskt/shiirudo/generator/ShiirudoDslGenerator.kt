@@ -69,7 +69,7 @@ class ShiirudoDslGenerator(
         }.joinToString("\n") {
             """
             |  is ${it.first} -> {
-            |    val f = shiirudoClass.on${it.second} ?: shiirudoClass.onElse
+            |    val f = shiirudoClass.is${it.second} ?: shiirudoClass.isElse
             |    f.invoke(this)
             |  }
             """.trimMargin()

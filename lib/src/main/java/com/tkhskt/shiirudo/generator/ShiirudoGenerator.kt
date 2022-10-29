@@ -67,13 +67,13 @@ class ShiirudoGenerator(
             val className = subclass.toClassName()
             val property = createProperty(
                 className = className,
-                name = "on$nameSuffix"
+                name = "is$nameSuffix"
             )
             addProperty(property)
         }
         val property = createProperty(
             className = annotatedClassName,
-            name = "onElse",
+            name = "isElse",
             nullable = false,
         )
         addProperty(property)
@@ -89,13 +89,13 @@ class ShiirudoGenerator(
             )
             val parameter = createParameter(
                 className = subclass.toClassName(),
-                name = "on$nameSuffix"
+                name = "is$nameSuffix"
             )
             addParameter(parameter)
         }
         val parameter = createParameter(
             className = annotatedClassName,
-            name = "onElse",
+            name = "isElse",
             nullable = false,
         )
         addParameter(parameter)

@@ -65,13 +65,13 @@ class ShiirudoBuilderGenerator(
             val className = subclass.toClassName()
             val property = createBuilderProperty(
                 className = className,
-                name = "on$nameSuffix",
+                name = "is$nameSuffix",
             )
             addProperty(property)
         }
         val property = createBuilderProperty(
             className = annotatedClassName,
-            name = "onElse",
+            name = "isElse",
             nullable = false,
             initializer = "{}"
         )
@@ -89,13 +89,13 @@ class ShiirudoBuilderGenerator(
             val className = subclass.toClassName()
             val func = createBuilderFunction(
                 className = className,
-                name = "on$nameSuffix"
+                name = "is$nameSuffix"
             )
             addFunction(func)
         }
         val func = createBuilderFunction(
             className = annotatedClassName,
-            name = "onElse",
+            name = "isElse",
         )
         addFunction(func)
         return this
@@ -111,7 +111,7 @@ class ShiirudoBuilderGenerator(
         }.joinToString(
             ",\n"
         ) { subclassName ->
-            "  on$subclassName = this.on$subclassName"
+            "  is$subclassName = this.is$subclassName"
         }
         val shiirudoClassNamePrefix =
             NameResolver.createPropertyName(
@@ -123,7 +123,7 @@ class ShiirudoBuilderGenerator(
         val func = FunSpec.builder("build")
             .returns(ClassName(annotatedClassDeclaration.packageName.asString(), shiirudoClassName))
             .addStatement(
-                "return ${shiirudoClassName}(\n$constructorStatement,\n  onElse = this.onElse\n)"
+                "return ${shiirudoClassName}(\n$constructorStatement,\n  isElse = this.isElse\n)"
             )
             .build()
         addFunction(func)

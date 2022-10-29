@@ -28,7 +28,5 @@ class MainViewModel : ViewModel() {
         }
 
         object ShowSnackBar : Event
-
-        object Foop : Event
     }
 }

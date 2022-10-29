@@ -9,6 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.tkhskt.shiirudo.sample.ui.screen.MainScreen
 import com.tkhskt.shiirudo.sample.ui.theme.ShiirudoTheme
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -28,20 +29,26 @@ class MainActivity : ComponentActivity() {
     private fun handleEvent() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.event.collect { event ->
-                    event.handle {
-                        onShowDialog {
+                viewModel.event.collectEvent {
 
-                        }
-                        onCloseDialog {
-
-                        }
-                        onElse {
-
-                        }
-                    }
                 }
             }
         }
+    }
+
+    fun hoge(event: MainViewModel.Event) {
+        event.handle {
+            isShowDialog {
+
+            }
+        }
+    }
+}
+
+suspend fun Flow<MainViewModel.Event>.collectEvent(
+    handler: MainViewModelEventShiirudoBuilder.() -> Unit,
+) {
+    collect {
+        it.handle(handler)
     }
 }
