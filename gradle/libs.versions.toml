@@ -1,0 +1,15 @@
+[versions]
+kotlin = "1.7.20"
+kotlin-poet = "1.12.0"
+ksp = "1.7.20-1.0.7"
+
+[libraries]
+stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+
+kotlin-poet = { module = "com.squareup:kotlinpoet", version.ref = "kotlin-poet" }
+kotlin-poet-ksp = { module = "com.squareup:kotlinpoet-ksp", version.ref = "kotlin-poet" }
+
+ksp = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
+
+[bundles]
+kotlin-poet = ["kotlin-poet", "kotlin-poet-ksp"]
