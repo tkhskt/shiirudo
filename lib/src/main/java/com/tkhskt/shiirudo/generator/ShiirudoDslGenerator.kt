@@ -12,59 +12,71 @@ import com.squareup.kotlinpoet.LambdaTypeName
 import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.writeTo
+import com.tkhskt.shiirudo.NameResolver
 
 class ShiirudoDslGenerator(
     private val codeGenerator: CodeGenerator,
     private val logger: KSPLogger,
 ) {
 
+    private lateinit var annotatedClassDeclaration: KSClassDeclaration
+    private lateinit var annotatedClassName: ClassName
+    private lateinit var subclasses: Sequence<KSClassDeclaration>
+
     fun generate(classDeclaration: KSClassDeclaration) {
         val packageName = classDeclaration.packageName.asString()
-        val className = classDeclaration.toString()
-        classDeclaration.getSealedSubclasses().forEach {
-            logger.info(packageName)
-        }
-
+        annotatedClassDeclaration = classDeclaration
+        annotatedClassName = classDeclaration.toClassName()
+        subclasses = classDeclaration.getSealedSubclasses()
         generateHandler(
             packageName = packageName,
-            className = className,
-            parentClass = classDeclaration,
-            subclasses = classDeclaration.getSealedSubclasses(),
             containingFile = classDeclaration.containingFile!!
         )
     }
 
     private fun generateHandler(
         packageName: String,
-        className: String,
-        parentClass: KSClassDeclaration,
-        subclasses: Sequence<KSClassDeclaration>,
         containingFile: KSFile,
     ) {
-        val fileName = "${className}Extension"
+        val namePrefix =
+            NameResolver.createPropertyName(
+                rootDeclaration = null,
+                classDeclaration = annotatedClassDeclaration,
+                includeRoot = true
+            )
+        val fileName = "${namePrefix}Extension"
         val file = FileSpec
             .builder(packageName, fileName)
-            .addHandleFunction(parentClass, subclasses)
+            .addHandleFunction()
             .build()
         file.writeTo(codeGenerator, Dependencies(false, containingFile))
     }
 
-    private fun FileSpec.Builder.addHandleFunction(
-        parentClass: KSClassDeclaration,
-        subclasses: Sequence<KSClassDeclaration>
-    ): FileSpec.Builder {
-        val parentClassNameString = parentClass.simpleName.asString()
-        val shiirudoClassName = ClassName(
-            parentClass.packageName.asString(),
-            "${parentClassNameString}ShiirudoBuilder"
+    private fun FileSpec.Builder.addHandleFunction(): FileSpec.Builder {
+        val shiirudoClassNamePrefix =
+            NameResolver.createPropertyName(
+                rootDeclaration = null,
+                classDeclaration = annotatedClassDeclaration,
+                includeRoot = true
+            )
+        val shiirudoClassName = "${shiirudoClassNamePrefix}Shiirudo"
+        val builderClassName = "${shiirudoClassName}Builder"
+        val shiirudoBuilderClassName = ClassName(
+            annotatedClassName.packageName,
+            builderClassName
         )
         val parameterTypeName = LambdaTypeName.get(
-            receiver = shiirudoClassName,
+            receiver = shiirudoBuilderClassName,
             returnType = Unit::class.asTypeName(),
         )
 
         val branches = subclasses.map { subclass ->
-            subclass.toClassName().canonicalName to subclass.simpleName.asString()
+            val nameSuffix = NameResolver.createPropertyName(
+                rootDeclaration = annotatedClassDeclaration,
+                classDeclaration = subclass,
+                reverse = true
+            )
+            subclass.toClassName().canonicalName to nameSuffix
         }.joinToString("\n") {
             """
             |  is ${it.first} -> {
@@ -75,11 +87,11 @@ class ShiirudoDslGenerator(
         }
         addFunction(
             FunSpec.builder("handle")
-                .receiver(parentClass.toClassName())
+                .receiver(annotatedClassName)
                 .addParameter("handler", parameterTypeName)
                 .addCode(
                     """
-                    |val shiirudoClass = ${parentClassNameString}ShiirudoBuilder().apply(handler).build()
+                    |val shiirudoClass = ${builderClassName}().apply(handler).build()
                     |when(this) {
                     |$branches
                     |}

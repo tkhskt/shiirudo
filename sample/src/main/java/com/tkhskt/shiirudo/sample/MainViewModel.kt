@@ -21,10 +21,10 @@ class MainViewModel : ViewModel() {
     @Shiirudo
     sealed interface Event {
 
-        interface DialogEvent {
-            object ShowDialog : Event
+        interface Dialog {
+            object Show : Event
 
-            object CloseDialog : Event
+            object Close : Event
         }
 
         object ShowSnackBar : Event

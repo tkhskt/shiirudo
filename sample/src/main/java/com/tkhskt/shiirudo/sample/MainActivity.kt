@@ -29,17 +29,17 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.event.collect { event ->
-                    event.handle {
-                        onShowDialog {
-
-                        }
-                        onCloseDialog {
-
-                        }
-                        onElse {
-
-                        }
-                    }
+//                    event.handle {
+//                        onShowDialog {
+//
+//                        }
+//                        onCloseDialog {
+//
+//                        }
+//                        onElse {
+//
+//                        }
+//                    }
                 }
             }
         }
