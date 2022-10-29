@@ -4,15 +4,13 @@ plugins {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 }
 
 dependencies {
-
     implementation(libs.stdlib)
     implementation(libs.bundles.kotlin.poet)
-
     implementation(libs.ksp)
 }
 
@@ -32,8 +30,8 @@ afterEvaluate {
                     url.set(LibraryInfo.url)
 
                     scm {
-                        connection.set("scm:git@github.com:tkhskt/glsl-tokenizer-kt.git")
-                        developerConnection.set("scm:git@github.com:tkhskt/glsl-tokenizer-kt.git")
+                        connection.set("scm:git@github.com:tkhskt/shiirudo.git")
+                        developerConnection.set("scm:git@github.com:tkhskt/shiirudo.git")
                         url.set(LibraryInfo.url)
                     }
 
