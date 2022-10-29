@@ -53,23 +53,12 @@ class ShiirudoDslGenerator(
     }
 
     private fun FileSpec.Builder.addHandleFunction(): FileSpec.Builder {
-        val shiirudoClassNamePrefix =
-            NameResolver.createPropertyName(
-                rootDeclaration = null,
-                classDeclaration = annotatedClassDeclaration,
-                includeRoot = true
-            )
-        val shiirudoClassName = "${shiirudoClassNamePrefix}Shiirudo"
-        val builderClassName = "${shiirudoClassName}Builder"
-        val shiirudoBuilderClassName = ClassName(
-            annotatedClassName.packageName,
-            builderClassName
-        )
+        val builderClassName =
+            ShiirudoBuilderGenerator.getBuilderClassName(annotatedClassDeclaration)
         val parameterTypeName = LambdaTypeName.get(
-            receiver = shiirudoBuilderClassName,
+            receiver = builderClassName,
             returnType = Unit::class.asTypeName(),
         )
-
         val branches = subclasses.map { subclass ->
             val nameSuffix = NameResolver.createPropertyName(
                 rootDeclaration = annotatedClassDeclaration,
@@ -91,7 +80,7 @@ class ShiirudoDslGenerator(
                 .addParameter("handler", parameterTypeName)
                 .addCode(
                     """
-                    |val shiirudoClass = ${builderClassName}().apply(handler).build()
+                    |val shiirudoClass = ${builderClassName.simpleName}().apply(handler).build()
                     |when(this) {
                     |$branches
                     |}

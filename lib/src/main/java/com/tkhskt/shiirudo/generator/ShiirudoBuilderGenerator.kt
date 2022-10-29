@@ -42,21 +42,14 @@ class ShiirudoBuilderGenerator(
         packageName: String,
         containingFile: KSFile,
     ) {
-        val shiirudoClassNamePrefix =
-            NameResolver.createPropertyName(
-                rootDeclaration = null,
-                classDeclaration = annotatedClassDeclaration,
-                includeRoot = true
-            )
-        val shiirudoClassName = "${shiirudoClassNamePrefix}Shiirudo"
-        val builderClassName = "${shiirudoClassName}Builder"
-        val typeSpec = TypeSpec.classBuilder(builderClassName)
+        val builderClassNameString = getBuilderClassName(annotatedClassDeclaration)
+        val typeSpec = TypeSpec.classBuilder(builderClassNameString)
             .addProperties()
             .addFunctions()
             .addBuildFunction()
             .build()
         val file = FileSpec
-            .builder(packageName, builderClassName)
+            .builder(packageName, builderClassNameString.simpleName)
             .addType(typeSpec)
             .build()
         file.writeTo(codeGenerator, Dependencies(false, containingFile))
@@ -174,5 +167,21 @@ class ShiirudoBuilderGenerator(
                 "this.$name = f"
             )
             .build()
+    }
+
+    companion object {
+        fun getBuilderClassName(annotatedKSClassDeclaration: KSClassDeclaration): ClassName {
+            val shiirudoClassNamePrefix =
+                NameResolver.createPropertyName(
+                    rootDeclaration = null,
+                    classDeclaration = annotatedKSClassDeclaration,
+                    includeRoot = true
+                )
+            val shiirudoClassName = "${shiirudoClassNamePrefix}Shiirudo"
+            return ClassName(
+                annotatedKSClassDeclaration.packageName.asString(),
+                "${shiirudoClassName}Builder"
+            )
+        }
     }
 }
