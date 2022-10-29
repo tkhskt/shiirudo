@@ -11,7 +11,7 @@ java {
 dependencies {
     implementation(libs.stdlib)
     implementation(libs.bundles.kotlin.poet)
-    implementation(libs.ksp)
+    implementation(libs.ksp.processing.api)
 }
 
 afterEvaluate {

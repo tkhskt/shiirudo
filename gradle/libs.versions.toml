@@ -8,6 +8,7 @@ compose-ui = "1.2.0"
 stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 kotlin-poet = { module = "com.squareup:kotlinpoet", version.ref = "kotlin-poet" }
 kotlin-poet-ksp = { module = "com.squareup:kotlinpoet-ksp", version.ref = "kotlin-poet" }
+ksp-processing-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 ksp = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 
 androidx-core-ktx = "androidx.core:core-ktx:1.9.0"
@@ -24,6 +25,8 @@ androidx-test-ext-junit = "androidx.test.ext:junit:1.1.3"
 androidx-test-espresso-core = "androidx.test.espresso:espresso-core:3.4.0"
 androidx-compose-ui-test-junit = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "compose-ui" }
 
+[plugins]
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 [bundles]
 kotlin-poet = ["kotlin-poet", "kotlin-poet-ksp"]

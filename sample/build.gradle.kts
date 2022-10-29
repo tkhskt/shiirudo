@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.ksp)
 }
 
 @Suppress("UnstableApiUsage")
@@ -48,6 +49,11 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    kotlin {
+        sourceSets.main {
+            kotlin.srcDir("build/generated/ksp/main/kotlin")
+        }
+    }
 }
 
 dependencies {
@@ -55,4 +61,8 @@ dependencies {
     debugImplementation(libs.bundles.androidx.debug)
     testImplementation(libs.bundles.test)
     androidTestImplementation(libs.bundles.android.test)
+
+    implementation(project(":lib"))
+    implementation(project(":annotation"))
+    ksp(project(":lib"))
 }
