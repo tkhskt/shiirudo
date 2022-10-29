@@ -8,7 +8,6 @@ import com.google.devtools.ksp.symbol.KSFile
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.LambdaTypeName
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.PropertySpec
@@ -17,7 +16,7 @@ import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.writeTo
 
-class ShiirudoBuilderGenerator(
+class ShiirudoGenerator(
     private val codeGenerator: CodeGenerator,
     private val logger: KSPLogger,
 ) {
@@ -25,11 +24,7 @@ class ShiirudoBuilderGenerator(
     fun generate(classDeclaration: KSClassDeclaration) {
         val packageName = classDeclaration.packageName.asString()
         val className = classDeclaration.toString()
-        classDeclaration.getSealedSubclasses().forEach {
-            logger.info(packageName)
-        }
-
-        generateShiirudoBuilder(
+        generateShiirudo(
             packageName = packageName,
             className = className,
             parentClass = classDeclaration,
@@ -38,23 +33,25 @@ class ShiirudoBuilderGenerator(
         )
     }
 
-    private fun generateShiirudoBuilder(
+    private fun generateShiirudo(
         packageName: String,
         className: String,
         parentClass: KSClassDeclaration,
         subclasses: Sequence<KSClassDeclaration>,
         containingFile: KSFile,
     ) {
-        val builderClassName = "${className}ShiirudoBuilder"
-        val file = FileSpec
-            .builder(packageName, builderClassName)
-            .addType(
-                TypeSpec.classBuilder(builderClassName)
-                    .addProperties(parentClass, subclasses)
-                    .addFunctions(parentClass, subclasses)
-                    .addBuildFunction(parentClass, subclasses)
+        val shiirudoClassName = "${className}Shiirudo"
+        val classBuilder = TypeSpec.classBuilder(shiirudoClassName)
+            .primaryConstructor(
+                FunSpec.constructorBuilder()
+                    .addParameters(parentClass, subclasses)
                     .build()
-            ).build()
+            ).addProperties(parentClass, subclasses)
+
+        val file = FileSpec
+            .builder(packageName, shiirudoClassName)
+            .addType(classBuilder.build())
+            .build()
         file.writeTo(codeGenerator, Dependencies(false, containingFile))
     }
 
@@ -64,70 +61,66 @@ class ShiirudoBuilderGenerator(
     ): TypeSpec.Builder {
         subclasses.forEach { subclass ->
             val className = subclass.toClassName()
-            val property = createBuilderProperty(
+            val property = createProperty(
                 className = className,
-                name = "on${className.simpleName}",
+                name = "on${className.simpleName}"
             )
             addProperty(property)
         }
         val className = parentClass.toClassName()
-        val property = createBuilderProperty(
+        val property = createProperty(
             className = className,
             name = "onElse",
             nullable = false,
-            initializer = "{}"
         )
         addProperty(property)
         return this
     }
 
-    private fun TypeSpec.Builder.addFunctions(
+    private fun FunSpec.Builder.addParameters(
         parentClass: KSClassDeclaration,
         subclasses: Sequence<KSClassDeclaration>
-    ): TypeSpec.Builder {
+    ): FunSpec.Builder {
         subclasses.forEach { subclass ->
             val className = subclass.toClassName()
-            val func = createBuilderFunction(
+            val parameter = createParameter(
                 className = className,
                 name = "on${className.simpleName}"
             )
-            addFunction(func)
+            addParameter(parameter)
         }
         val className = parentClass.toClassName()
-        val func = createBuilderFunction(
+        val parameter = createParameter(
             className = className,
             name = "onElse",
+            nullable = false,
         )
-        addFunction(func)
+        addParameter(parameter)
         return this
     }
 
-    private fun TypeSpec.Builder.addBuildFunction(
-        parentClass: KSClassDeclaration,
-        subclasses: Sequence<KSClassDeclaration>
-    ): TypeSpec.Builder {
-        val constructorStatement = subclasses.map {
-            it.simpleName.asString()
-        }.joinToString(
-            ",\n"
-        ) { subclassName ->
-            "  on$subclassName = this.on$subclassName"
-        }
-        val func = FunSpec.builder("build")
-            .returns(ClassName(parentClass.packageName.asString(), "${parentClass}Shiirudo"))
-            .addStatement(
-                "return ${parentClass.simpleName.asString()}Shiirudo(\n$constructorStatement,\n  onElse = this.onElse\n)"
-            )
-            .build()
-        addFunction(func)
-        return this
-    }
-
-    private fun createBuilderProperty(
+    private fun createParameter(
         className: ClassName,
         name: String,
         nullable: Boolean = true,
-        initializer: String = "null"
+    ): ParameterSpec {
+        val parameterSpec = ParameterSpec.builder("", className).build()
+        val lambdaTypeSpec = LambdaTypeName.get(
+            receiver = null,
+            parameters = listOf(parameterSpec),
+            returnType = Unit::class.asClassName()
+        ).copy(nullable = nullable)
+        return ParameterSpec.builder(
+            name = name,
+            type = lambdaTypeSpec,
+        ).build()
+    }
+
+
+    private fun createProperty(
+        className: ClassName,
+        name: String,
+        nullable: Boolean = true,
     ): PropertySpec {
         val parameterSpec = ParameterSpec.builder("", className).build()
         val lambdaTypeSpec = LambdaTypeName.get(
@@ -138,27 +131,6 @@ class ShiirudoBuilderGenerator(
         return PropertySpec.builder(
             name = name,
             type = lambdaTypeSpec,
-            modifiers = listOf(KModifier.PRIVATE)
-        ).mutable().initializer(initializer).build()
-    }
-
-    private fun createBuilderFunction(
-        className: ClassName,
-        name: String,
-    ): FunSpec {
-        val parameterSpec = ParameterSpec.builder("", className).build()
-        val lambdaTypeSpec = LambdaTypeName.get(
-            receiver = null,
-            parameters = listOf(parameterSpec),
-            returnType = Unit::class.asClassName()
-        )
-        return FunSpec.builder(name)
-            .addParameter(
-                name = "f",
-                lambdaTypeSpec,
-            ).addStatement(
-                "this.$name = f"
-            )
-            .build()
+        ).initializer(name).build()
     }
 }

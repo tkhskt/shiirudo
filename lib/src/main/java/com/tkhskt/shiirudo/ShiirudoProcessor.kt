@@ -10,6 +10,8 @@ import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.google.devtools.ksp.validate
 import com.tkhskt.shiirudo.ClassNames.SHIIRUDO
 import com.tkhskt.shiirudo.generator.ShiirudoBuilderGenerator
+import com.tkhskt.shiirudo.generator.ShiirudoDslGenerator
+import com.tkhskt.shiirudo.generator.ShiirudoGenerator
 
 class ShiirudoProcessor(
     private val codeGenerator: CodeGenerator,
@@ -28,9 +30,15 @@ class ShiirudoProcessor(
 
     inner class ShiirudoVisitor : KSVisitorVoid() {
         override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
+            val shiirudoGenerator =
+                ShiirudoGenerator(codeGenerator, logger)
+            shiirudoGenerator.generate(classDeclaration)
             val shiirudoBuilderGenerator =
                 ShiirudoBuilderGenerator(codeGenerator, logger)
             shiirudoBuilderGenerator.generate(classDeclaration)
+            val shiirudoDslGenerator =
+                ShiirudoDslGenerator(codeGenerator, logger)
+            shiirudoDslGenerator.generate(classDeclaration)
         }
     }
 }

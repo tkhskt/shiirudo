@@ -12,6 +12,8 @@ dependencies {
     implementation(libs.stdlib)
     implementation(libs.bundles.kotlin.poet)
     implementation(libs.ksp.processing.api)
+
+    api(project(":annotation"))
 }
 
 afterEvaluate {

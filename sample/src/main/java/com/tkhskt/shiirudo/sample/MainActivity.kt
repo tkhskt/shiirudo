@@ -29,14 +29,14 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.event.collect { event ->
-                    when (event) {
-                        is MainViewModel.Event.ShowDialog -> {
+                    event.handle {
+                        onShowDialog {
 
                         }
-                        is MainViewModel.Event.CloseDialog -> {
+                        onCloseDialog {
 
                         }
-                        is MainViewModel.Event.ShowSnackBar -> {
+                        onElse {
 
                         }
                     }

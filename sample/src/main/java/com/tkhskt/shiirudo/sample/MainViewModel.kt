@@ -2,6 +2,7 @@ package com.tkhskt.shiirudo.sample
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tkhskt.shiirudo.annotation.Shiirudo
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
@@ -17,9 +18,17 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    sealed class Event {
-        object ShowDialog : Event()
-        object CloseDialog : Event()
-        object ShowSnackBar : Event()
+    @Shiirudo
+    sealed interface Event {
+
+        interface DialogEvent {
+            object ShowDialog : Event
+
+            object CloseDialog : Event
+        }
+
+        object ShowSnackBar : Event
+
+        object Foop : Event
     }
 }
