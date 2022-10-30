@@ -1,15 +1,15 @@
 package com.tkhskt.shiirudo.sample
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.tkhskt.shiirudo.sample.ui.screen.MainScreen
+import com.tkhskt.shiirudo.sample.ui.MainRoute
 import com.tkhskt.shiirudo.sample.ui.theme.ShiirudoTheme
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -18,47 +18,29 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        handleEvent()
-        setContent {
-            ShiirudoTheme {
-                MainScreen()
-            }
-        }
-    }
-
-    private fun handleEvent() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.event.collectEvent {
-                    isShowDialog {
-
-                    }
-                    isCloseDialog {
-
-                    }
-                    isElse {
-
-                    }
-                }
+                viewModel.event.collect(::logEvent)
+            }
+        }
+        setContent {
+            ShiirudoTheme {
+                MainRoute(viewModel)
             }
         }
     }
 
-    private fun eventHandler(event: MainViewModel.Event) {
-        event.shiirudo()
-            .isShowDialog {
-
-            }
-            .isElse {
-
-            }
-    }
-}
-
-suspend fun Flow<MainViewModel.Event>.collectEvent(
-    handler: MainViewModelEventShiirudoBuilder.() -> Unit,
-) {
-    collect {
-        it.shiirudo(handler)
-    }
+    private fun logEvent(event: MainViewModel.Event) = event.shiirudo()
+        .isShowDialog {
+            Log.d("ViewModel Event", "show dialog")
+        }
+        .isCloseDialog {
+            Log.d("ViewModel Event", "close dialog")
+        }
+        .isShowToast {
+            Log.d("ViewModel Event", "show toast")
+        }
+        .isElse {
+            Log.d("ViewModel Event", "else")
+        }.execute()
 }

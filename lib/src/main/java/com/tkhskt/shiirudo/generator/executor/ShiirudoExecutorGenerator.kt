@@ -150,7 +150,6 @@ class ShiirudoExecutorGenerator(
                     |}
                     """.trimMargin()
                 )
-                .addModifiers(KModifier.PRIVATE)
                 .build()
         )
         return this
@@ -193,7 +192,6 @@ class ShiirudoExecutorGenerator(
             ).addCode(
                 """
                 |this.$name = f
-                |execute()
                 |return this
                 """.trimMargin()
             )
