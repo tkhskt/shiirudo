@@ -18,7 +18,7 @@ import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.writeTo
 import com.tkhskt.shiirudo.NameResolver
 
-class ShiirudoBuilderGenerator(
+internal class ShiirudoBuilderGenerator(
     private val codeGenerator: CodeGenerator,
     private val logger: KSPLogger,
 ) {

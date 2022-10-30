@@ -2,7 +2,7 @@ package com.tkhskt.shiirudo
 
 import com.google.devtools.ksp.symbol.KSDeclaration
 
-class NameResolver {
+internal class NameResolver {
     companion object {
         fun createPropertyName(
             rootDeclaration: KSDeclaration?,

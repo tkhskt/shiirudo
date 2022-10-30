@@ -65,6 +65,5 @@ dependencies {
     androidTestImplementation(libs.bundles.android.test)
 
     implementation(project(":lib"))
-    implementation(project(":annotation"))
     ksp(project(":lib"))
 }

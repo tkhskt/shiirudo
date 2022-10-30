@@ -12,7 +12,7 @@ import com.squareup.kotlinpoet.LambdaTypeName
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.writeTo
 
-class ShiirudoExecutorDslGenerator(
+internal class ShiirudoExecutorDslGenerator(
     private val codeGenerator: CodeGenerator,
     private val logger: KSPLogger,
 ) {
