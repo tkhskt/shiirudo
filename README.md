@@ -1,6 +1,6 @@
 # shiirudo [![](https://jitpack.io/v/com.tkhskt/shiirudo.svg)](https://jitpack.io/#com.tkhskt/shiirudo)
 
-Generates DSL to simplify processing branching by when expressions in sealed class/interface
+Generates DSL to simplify processing branching by when expressions in sealed class/interface.
 
 ## Setup
 
