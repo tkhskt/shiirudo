@@ -53,7 +53,8 @@ project(":lib") {
 
 object LibraryInfo {
     const val artifactId = "shiirudo"
-    const val description = "Sealed Class"
+    const val description =
+        "Generates DSL to simplify processing branching by when expressions in sealed class/interface."
     const val displayName = "shiirudo"
     const val group = "com.tkhskt"
     const val url = "https://github.com/tkhskt/shiirudo"
