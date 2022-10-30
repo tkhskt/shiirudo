@@ -15,4 +15,6 @@ dependencyResolutionManagement {
 }
 rootProject.name = "shiirudo"
 include(":lib")
-include(":sample")
+if (System.getenv("JITPACK") != null) {
+    include(":sample")
+}
