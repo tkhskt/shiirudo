@@ -59,7 +59,7 @@ fun handleEvent(event: Event) {
 // or
 
 fun handleEvent(event: Event) {
-    shiirudo {
+    eventShiirudo {
         event
     }.isShowDialog {
 
