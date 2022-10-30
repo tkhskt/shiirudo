@@ -30,17 +30,15 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun logEvent(event: MainViewModel.Event) = event.shiirudo()
-        .isShowDialog {
-            Log.d("ViewModel Event", "show dialog")
-        }
-        .isCloseDialog {
-            Log.d("ViewModel Event", "close dialog")
-        }
-        .isShowToast {
-            Log.d("ViewModel Event", "show toast")
-        }
-        .isElse {
-            Log.d("ViewModel Event", "else")
-        }.execute()
+    private fun logEvent(event: MainViewModel.Event) = shiirudo {
+        event
+    }.isShowDialog {
+        Log.d("ViewModel Event", "show dialog")
+    }.isCloseDialog {
+        Log.d("ViewModel Event", "close dialog")
+    }.isShowToast {
+        Log.d("ViewModel Event", "show toast")
+    }.isElse {
+        Log.d("ViewModel Event", "else")
+    }.execute()
 }
