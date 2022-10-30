@@ -57,5 +57,5 @@ object LibraryInfo {
     const val displayName = "shiirudo"
     const val group = "com.tkhskt"
     const val url = "https://github.com/tkhskt/shiirudo"
-    const val version = "1.0.0"
+    const val version = "0.1.0"
 }
