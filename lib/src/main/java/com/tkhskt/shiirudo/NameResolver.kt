@@ -8,15 +8,10 @@ internal class NameResolver {
             rootDeclaration: KSDeclaration?,
             classDeclaration: KSDeclaration,
             includeRoot: Boolean = false,
-            reverse: Boolean = false,
             currentName: String = classDeclaration.simpleName.asString(),
         ): String {
             val parent = classDeclaration.parentDeclaration ?: return currentName
-            val name = if (reverse) {
-                "$currentName${parent.simpleName.asString()}"
-            } else {
-                "${parent.simpleName.asString()}$currentName"
-            }
+            val name = "${parent.simpleName.asString()}$currentName"
             if (parent == rootDeclaration && includeRoot) {
                 return name
             } else if (parent == rootDeclaration) {

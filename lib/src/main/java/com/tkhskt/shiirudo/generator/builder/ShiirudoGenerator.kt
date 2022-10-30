@@ -61,7 +61,6 @@ internal class ShiirudoGenerator(
             val nameSuffix = NameResolver.createPropertyName(
                 rootDeclaration = annotatedClassDeclaration,
                 classDeclaration = subclass,
-                reverse = true
             )
             val className = subclass.toClassName()
             val property = createProperty(
@@ -84,7 +83,6 @@ internal class ShiirudoGenerator(
             val nameSuffix = NameResolver.createPropertyName(
                 rootDeclaration = annotatedClassDeclaration,
                 classDeclaration = subclass,
-                reverse = true
             )
             val parameter = createParameter(
                 className = subclass.toClassName(),

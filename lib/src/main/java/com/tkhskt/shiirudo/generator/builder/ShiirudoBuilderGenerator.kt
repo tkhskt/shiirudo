@@ -60,7 +60,6 @@ internal class ShiirudoBuilderGenerator(
             val nameSuffix = NameResolver.createPropertyName(
                 rootDeclaration = annotatedClassDeclaration,
                 classDeclaration = subclass,
-                reverse = true
             )
             val className = subclass.toClassName()
             val property = createBuilderProperty(
@@ -84,7 +83,6 @@ internal class ShiirudoBuilderGenerator(
             val nameSuffix = NameResolver.createPropertyName(
                 rootDeclaration = annotatedClassDeclaration,
                 classDeclaration = subclass,
-                reverse = true
             )
             val className = subclass.toClassName()
             val func = createBuilderFunction(
@@ -106,7 +104,6 @@ internal class ShiirudoBuilderGenerator(
             NameResolver.createPropertyName(
                 rootDeclaration = annotatedClassDeclaration,
                 classDeclaration = subclass,
-                reverse = true
             )
         }.joinToString(
             ",\n"

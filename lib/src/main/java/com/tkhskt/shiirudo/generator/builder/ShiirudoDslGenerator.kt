@@ -63,7 +63,6 @@ internal class ShiirudoDslGenerator(
             val nameSuffix = NameResolver.createPropertyName(
                 rootDeclaration = annotatedClassDeclaration,
                 classDeclaration = subclass,
-                reverse = true
             )
             subclass.toClassName().canonicalName to nameSuffix
         }.joinToString("\n") {

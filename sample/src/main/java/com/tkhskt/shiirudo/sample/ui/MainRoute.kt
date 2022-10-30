@@ -21,10 +21,10 @@ fun MainRoute(viewModel: MainViewModel) {
     val context = LocalContext.current
     LaunchedEffect(viewModel.event) {
         viewModel.event.collectEvent {
-            isShowDialog {
+            isDialogShow {
                 showDialog = true
             }
-            isCloseDialog {
+            isDialogClose {
                 showDialog = false
             }
             isShowToast {

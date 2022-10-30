@@ -84,7 +84,6 @@ internal class ShiirudoExecutorGenerator(
             val nameSuffix = NameResolver.createPropertyName(
                 rootDeclaration = annotatedClassDeclaration,
                 classDeclaration = subclass,
-                reverse = true
             )
             val className = subclass.toClassName()
             val property = createProperty(
@@ -108,7 +107,6 @@ internal class ShiirudoExecutorGenerator(
             val nameSuffix = NameResolver.createPropertyName(
                 rootDeclaration = annotatedClassDeclaration,
                 classDeclaration = subclass,
-                reverse = true
             )
             val className = subclass.toClassName()
             val func = createFunction(
@@ -130,7 +128,6 @@ internal class ShiirudoExecutorGenerator(
             val nameSuffix = NameResolver.createPropertyName(
                 rootDeclaration = annotatedClassDeclaration,
                 classDeclaration = subclass,
-                reverse = true
             )
             subclass.toClassName().canonicalName to nameSuffix
         }.joinToString("\n") {
