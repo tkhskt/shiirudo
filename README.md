@@ -4,7 +4,7 @@ Generates DSL to simplify processing branching by when expressions in sealed cla
 
 ## Setup
 
-Refer to the [KSP quickstart Guide](https://kotlinlang.org/docs/ksp-quickstart.html) to make KSP
+Refer to the [KSP quickstart guide](https://kotlinlang.org/docs/ksp-quickstart.html) to make KSP
 available for your project.
 
 ### Installation
