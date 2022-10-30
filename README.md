@@ -147,7 +147,7 @@ fun handleEvent(event: SampleViewModel.Event) {
 
 ## Examples
 
-See the [sample](./sample) project
+See the [sample](./sample) project.
 
 ## License
 
