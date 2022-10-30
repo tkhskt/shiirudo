@@ -11,6 +11,7 @@ import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.LambdaTypeName
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.writeTo
+import com.tkhskt.shiirudo.NameResolver
 
 internal class ShiirudoExecutorDslGenerator(
     private val codeGenerator: CodeGenerator,
@@ -70,8 +71,14 @@ internal class ShiirudoExecutorDslGenerator(
             receiver = null,
             returnType = annotatedClassName
         )
+        val shiirudoClassNamePrefix =
+            NameResolver.createPropertyName(
+                rootDeclaration = null,
+                classDeclaration = annotatedClassDeclaration,
+                includeRoot = true
+            ).lowerCamelCase()
         addFunction(
-            FunSpec.builder("shiirudo")
+            FunSpec.builder("${shiirudoClassNamePrefix}Shiirudo")
                 .returns(executorClassName)
                 .addParameter("block", lambdaTypeName)
                 .addCode(
@@ -82,5 +89,13 @@ internal class ShiirudoExecutorDslGenerator(
                 .build()
         )
         return this
+    }
+
+    private fun String.lowerCamelCase(): String {
+        return when (this.length) {
+            0 -> ""
+            1 -> this.lowercase()
+            else -> this[0].lowercase() + this.substring(1)
+        }
     }
 }

@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun logEvent(event: MainViewModel.Event) = shiirudo {
+    private fun logEvent(event: MainViewModel.Event) = mainViewModelEventShiirudo {
         event
     }.isDialogShow {
         Log.d("ViewModel Event", "show dialog")

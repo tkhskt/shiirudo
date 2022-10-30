@@ -14,6 +14,7 @@ import com.tkhskt.shiirudo.generator.builder.ShiirudoDslGenerator
 import com.tkhskt.shiirudo.generator.builder.ShiirudoGenerator
 import com.tkhskt.shiirudo.generator.executor.ShiirudoExecutorDslGenerator
 import com.tkhskt.shiirudo.generator.executor.ShiirudoExecutorGenerator
+import com.tkhskt.shiirudo.validator.ShiirudoTargetValidator
 
 class ShiirudoProcessor(
     private val codeGenerator: CodeGenerator,
@@ -32,6 +33,8 @@ class ShiirudoProcessor(
 
     inner class ShiirudoVisitor : KSVisitorVoid() {
         override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
+            ShiirudoTargetValidator.validate(classDeclaration, logger)
+
             val shiirudoGenerator =
                 ShiirudoGenerator(codeGenerator, logger)
             shiirudoGenerator.generate(classDeclaration)
